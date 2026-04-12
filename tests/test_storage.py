@@ -67,7 +67,6 @@ def test_history_dict_has_required_keys(tmp_path):
     item = s.history("system")[0]
     assert "version" in item
     assert "timestamp" in item
-    assert "content" in item
 
 
 def test_diff_added_lines(tmp_path):

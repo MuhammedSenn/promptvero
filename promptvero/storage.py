@@ -32,8 +32,14 @@ class Storage:
     def _history_file(self, name: str) -> Path:
         return self._prompt_dir(name) / "history.json"
 
+    def _main_file(self, name: str) -> Path:
+        return self._prompt_dir(name) / "main.json"
+
     def _next_version(self, prompt_dir: Path) -> int:
-        return len(list(prompt_dir.glob("v*.txt"))) + 1
+        files = list(prompt_dir.glob("v*.txt"))
+        if not files:
+            return 1
+        return max(int(f.stem[1:]) for f in files) + 1
 
     def _latest_version_num(self, prompt_dir: Path) -> int:
         files = list(prompt_dir.glob("v*.txt"))
@@ -78,7 +84,6 @@ class Storage:
                 {
                     "version": version,
                     "timestamp": datetime.now().isoformat(timespec="seconds"),
-                    "content": content,
                 }
             )
             history_path.write_text(
@@ -187,3 +192,49 @@ class Storage:
             VersionNotFoundError: If the version does not exist.
         """
         return self.get(name, version)
+
+    def set_main(self, name: str, version: str) -> None:
+        """Mark a specific version as the main (canonical) version.
+
+        Args:
+            name: Prompt identifier.
+            version: Version string to mark as main (e.g. "v2").
+
+        Raises:
+            VersionNotFoundError: If the version does not exist.
+            StorageError: If the file write fails.
+        """
+        if not self._version_file(name, version).exists():
+            raise VersionNotFoundError(
+                f"Version '{version}' not found for prompt '{name}'."
+            )
+        main_path = self._main_file(name)
+        try:
+            main_path.write_text(
+                json.dumps({"version": version}, ensure_ascii=False), encoding="utf-8"
+            )
+        except OSError as exc:
+            raise StorageError(f"Failed to write main for '{name}': {exc}") from exc
+
+    def list_prompts(self) -> list[str]:
+        """Return the names of all saved prompts.
+
+        Returns:
+            A sorted list of prompt name strings.
+        """
+        return sorted(d.name for d in self._base.iterdir() if d.is_dir())
+
+    def get_main(self, name: str) -> str | None:
+        """Return the version string marked as main, or None if not set.
+
+        Args:
+            name: Prompt identifier.
+
+        Returns:
+            The main version string (e.g. "v2"), or None if not set.
+        """
+        main_path = self._main_file(name)
+        if not main_path.exists():
+            return None
+        data = json.loads(main_path.read_text(encoding="utf-8"))
+        return data.get("version")
