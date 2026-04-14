@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "promptvero"
-version = "0.1.0"
+version = "0.2.0"
 description = "Git-like version control for LLM prompts"
 readme = "README.md"
 license = {file = "LICENSE"}
@@ -14,7 +14,7 @@ authors = [
 ]
 keywords = ["prompt", "versioning", "llm", "ai", "agents", "version-control"]
 classifiers = [
-  "Development Status :: 3 - Alpha",
+  "Development Status :: 5 - Production/Stable",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3.10",
@@ -26,6 +26,9 @@ classifiers = [
   "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 dependencies = []
+
+[project.scripts]
+pv = "promptvero.cli:main"
 
 [project.optional-dependencies]
 dev = [
