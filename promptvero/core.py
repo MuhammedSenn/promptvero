@@ -113,6 +113,32 @@ class Prompt:
             )
         return self._storage.get(self.name, version)
 
+    def delete_prompt(self) -> None:
+        """Delete this prompt and all its versions.
+
+        Removes all version files, history, and the main pointer.
+
+        Raises:
+            PromptNotFoundError: If the prompt does not exist.
+            StorageError: If the directory removal fails.
+        """
+        self._storage.delete_prompt(self.name)
+
+    def delete_version(self, version: str) -> None:
+        """Delete a specific version of this prompt.
+
+        Removes the version file and its history entry. If the deleted version
+        was marked as main, the main pointer is also cleared.
+
+        Args:
+            version: Version string to delete (e.g. "v2").
+
+        Raises:
+            VersionNotFoundError: If the version does not exist.
+            StorageError: If the file delete operation fails.
+        """
+        self._storage.delete_version(self.name, version)
+
     def diff(self, v1: str, v2: str) -> dict:
         """Compute a line-by-line diff between two versions.
 
@@ -125,17 +151,6 @@ class Prompt:
             containing a list of strings representing the changed lines.
         """
         return self._storage.diff(self.name, v1, v2)
-
-    def checkout(self, version: str) -> str:
-        """Return the content of a specific historical version.
-
-        Args:
-            version: Version string to retrieve (e.g. "v1").
-
-        Returns:
-            The prompt text for the requested version.
-        """
-        return self._storage.checkout(self.name, version)
 
     def changes(self, v1: str | None = None, v2: str | None = None) -> str:
         """Return a formatted change report between two versions.

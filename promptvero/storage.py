@@ -20,7 +20,7 @@ class Storage:
     """
 
     def __init__(self, base_dir: str = ".promptvero") -> None:
-        self._base = Path(base_dir)
+        self._base = Path(base_dir).resolve()
         self._base.mkdir(parents=True, exist_ok=True)
 
     def _prompt_dir(self, name: str) -> Path:
@@ -132,7 +132,7 @@ class Storage:
             name: Prompt identifier.
 
         Returns:
-            A list of dicts with keys "version", "timestamp", and "content".
+            A list of dicts with keys "version" and "timestamp".
 
         Raises:
             PromptNotFoundError: If the prompt directory does not exist.
@@ -178,21 +178,6 @@ class Storage:
 
         return {"added": added, "removed": removed, "unchanged": unchanged}
 
-    def checkout(self, name: str, version: str) -> str:
-        """Return the content of a specific prompt version.
-
-        Args:
-            name: Prompt identifier.
-            version: Version string to check out (e.g. "v1").
-
-        Returns:
-            The prompt text for the requested version.
-
-        Raises:
-            VersionNotFoundError: If the version does not exist.
-        """
-        return self.get(name, version)
-
     def set_main(self, name: str, version: str) -> None:
         """Mark a specific version as the main (canonical) version.
 
@@ -215,6 +200,70 @@ class Storage:
             )
         except OSError as exc:
             raise StorageError(f"Failed to write main for '{name}': {exc}") from exc
+
+    def delete_version(self, name: str, version: str) -> None:
+        """Delete a specific version of a prompt.
+
+        Removes the version file and its entry from history. If the deleted
+        version was marked as main, the main pointer is also cleared.
+
+        Args:
+            name: Prompt identifier.
+            version: Version string to delete (e.g. "v2").
+
+        Raises:
+            VersionNotFoundError: If the version does not exist.
+            StorageError: If the file delete operation fails.
+        """
+        version_path = self._version_file(name, version)
+        if not version_path.exists():
+            raise VersionNotFoundError(
+                f"Version '{version}' not found for prompt '{name}'."
+            )
+
+        try:
+            version_path.unlink()
+        except OSError as exc:
+            raise StorageError(f"Failed to delete '{version_path}': {exc}") from exc
+
+        history_path = self._history_file(name)
+        if history_path.exists():
+            try:
+                history = json.loads(history_path.read_text(encoding="utf-8"))
+                history = [e for e in history if e["version"] != version]
+                history_path.write_text(
+                    json.dumps(history, indent=2, ensure_ascii=False), encoding="utf-8"
+                )
+            except OSError as exc:
+                raise StorageError(
+                    f"Failed to update history for '{name}': {exc}"
+                ) from exc
+
+        if self.get_main(name) == version:
+            self._main_file(name).unlink(missing_ok=True)
+
+    def delete_prompt(self, name: str) -> None:
+        """Delete a prompt and all its versions.
+
+        Removes the entire prompt directory including all version files,
+        history, and the main pointer.
+
+        Args:
+            name: Prompt identifier.
+
+        Raises:
+            PromptNotFoundError: If the prompt does not exist.
+            StorageError: If the directory removal fails.
+        """
+        prompt_dir = self._prompt_dir(name)
+        if not prompt_dir.exists():
+            raise PromptNotFoundError(f"Prompt '{name}' not found.")
+        try:
+            for file in prompt_dir.iterdir():
+                file.unlink()
+            prompt_dir.rmdir()
+        except OSError as exc:
+            raise StorageError(f"Failed to delete prompt '{name}': {exc}") from exc
 
     def list_prompts(self) -> list[str]:
         """Return the names of all saved prompts.
