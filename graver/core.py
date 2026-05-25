@@ -1,9 +1,9 @@
-"""Public-facing API for promptvero."""
+"""Public-facing API for graver."""
 
 from pathlib import Path
 
-from promptvero.exceptions import PromptNotFoundError
-from promptvero.storage import Storage
+from graver.exceptions import PromptNotFoundError
+from graver.storage import Storage
 
 
 class Prompt:
@@ -11,15 +11,15 @@ class Prompt:
 
     Args:
         name: Unique identifier for this prompt.
-        base_dir: Root directory for all prompt storage. Defaults to ".promptvero".
+        base_dir: Root directory for all prompt storage. Defaults to ".graver".
     """
 
-    def __init__(self, name: str, base_dir: str = ".promptvero") -> None:
+    def __init__(self, name: str, base_dir: str = ".graver") -> None:
         self.name = name
         self._storage = Storage(base_dir=base_dir)
 
     @staticmethod
-    def list_all(base_dir: str = ".promptvero") -> list[str]:
+    def list_all(base_dir: str = ".graver") -> list[str]:
         """Return the names of all saved prompts in the given base directory.
 
         Args:

@@ -1,16 +1,16 @@
-"""Tests for promptvero.cli."""
+"""Tests for graver.cli."""
 
 import sys
 
 import pytest
 
-from promptvero.cli import main
-from promptvero.core import Prompt
+from graver.cli import main
+from graver.core import Prompt
 
 
 def run_cli(args: list[str], base_dir: str) -> tuple[str, str, int]:
     """Run the CLI with given args and return (stdout, stderr, exit_code)."""
-    argv = ["pv", "--base-dir", base_dir] + args
+    argv = ["gr", "--base-dir", base_dir] + args
     with pytest.MonkeyPatch().context() as mp:
         mp.setattr(sys, "argv", argv)
         try:

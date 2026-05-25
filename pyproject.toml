@@ -3,14 +3,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "promptvero"
-version = "0.2.0"
+name = "graver"
+version = "0.3.0"
 description = "Git-like version control for LLM prompts"
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.10"
 authors = [
-  {name = "Muhammed Sen"}
+  {name = "Practical Mind"}
 ]
 keywords = ["prompt", "versioning", "llm", "ai", "agents", "version-control"]
 classifiers = [
@@ -28,7 +28,7 @@ classifiers = [
 dependencies = []
 
 [project.scripts]
-pv = "promptvero.cli:main"
+gr = "graver.cli:main"
 
 [project.optional-dependencies]
 dev = [
@@ -38,9 +38,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/MuhammedSenn/promptvero"
-Repository = "https://github.com/MuhammedSenn/promptvero"
-Issues = "https://github.com/MuhammedSenn/promptvero/issues"
+Homepage = "https://github.com/PracticalMind/graver"
+Repository = "https://github.com/PracticalMind/graver"
+Issues = "https://github.com/PracticalMind/graver/issues"
 
 [tool.black]
 line-length = 88
@@ -53,7 +53,7 @@ line-length = 88
 select = ["E", "F", "I"]
 
 [tool.hatch.build.targets.wheel]
-packages = ["promptvero"]
+packages = ["graver"]
 exclude = ["tests/"]
 
 [tool.hatch.build.targets.sdist]

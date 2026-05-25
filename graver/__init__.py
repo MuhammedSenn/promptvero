@@ -1,31 +1,31 @@
-"""promptvero — Git-like version control for LLM prompts.
+"""graver — Git-like version control for LLM prompts.
 
 Save, diff, and roll back prompt versions with a simple Python API.
-All data is stored as plain text files under a ``.promptvero/`` directory.
+All data is stored as plain text files under a ``.graver/`` directory.
 
 Example::
 
-    from promptvero import Prompt
+    from graver import Prompt
 
     p = Prompt("system")
     p.save("You are a helpful assistant")
     print(p.get())
 """
 
-from promptvero.core import Prompt
-from promptvero.exceptions import (
+from graver.core import Prompt
+from graver.exceptions import (
+    GraverError,
     PromptNotFoundError,
-    PromptVeroError,
     StorageError,
     VersionNotFoundError,
 )
 
-__version__ = "0.2.0"
-__author__ = "Muhammed Sen"
+__version__ = "0.3.0"
+__author__ = "Practical Mind"
 
 __all__ = [
     "Prompt",
-    "PromptVeroError",
+    "GraverError",
     "PromptNotFoundError",
     "VersionNotFoundError",
     "StorageError",

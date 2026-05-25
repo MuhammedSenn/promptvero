@@ -1,11 +1,11 @@
-"""File-system storage backend for promptvero."""
+"""File-system storage backend for graver."""
 
 import difflib
 import json
 from datetime import datetime
 from pathlib import Path
 
-from promptvero.exceptions import (
+from graver.exceptions import (
     PromptNotFoundError,
     StorageError,
     VersionNotFoundError,
@@ -13,13 +13,13 @@ from promptvero.exceptions import (
 
 
 class Storage:
-    """Handles all file system operations for promptvero.
+    """Handles all file system operations for graver.
 
     Args:
         base_dir: Root directory for all prompt storage.
     """
 
-    def __init__(self, base_dir: str = ".promptvero") -> None:
+    def __init__(self, base_dir: str = ".graver") -> None:
         self._base = Path(base_dir).resolve()
         self._base.mkdir(parents=True, exist_ok=True)
 

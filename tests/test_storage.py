@@ -1,9 +1,9 @@
-"""Tests for promptvero.storage.Storage."""
+"""Tests for graver.storage.Storage."""
 
 import pytest
 
-from promptvero.exceptions import PromptNotFoundError, VersionNotFoundError
-from promptvero.storage import Storage
+from graver.exceptions import PromptNotFoundError, VersionNotFoundError
+from graver.storage import Storage
 
 
 def test_save_creates_file(tmp_path):

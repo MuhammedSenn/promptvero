@@ -1,9 +1,9 @@
-"""Tests for promptvero.core.Prompt."""
+"""Tests for graver.core.Prompt."""
 
 import pytest
 
-from promptvero.core import Prompt
-from promptvero.exceptions import PromptNotFoundError
+from graver.core import Prompt
+from graver.exceptions import PromptNotFoundError
 
 
 def test_save_and_get(tmp_path):
