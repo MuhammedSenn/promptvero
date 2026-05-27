@@ -1,15 +1,20 @@
 # Graver
 
+[![CI](https://github.com/PracticalMind/graver/actions/workflows/ci.yml/badge.svg)](https://github.com/PracticalMind/graver/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/graver)](https://pypi.org/project/graver/)
+[![Python](https://img.shields.io/pypi/pyversions/graver)](https://pypi.org/project/graver/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Git-like version control for your LLM prompts.
 
-Save prompt versions, view history, compare diffs, and roll back — all from Python, with zero external dependencies.
+Save prompt versions, view history, compare diffs, and roll back, all from Python, with zero external dependencies.
 
 ## Why graver?
 
 LLM prompts change constantly. Tracking what changed, when, and which version performed better quickly becomes a mess.
 
 graver solves this:
-- Every change is automatically versioned — v1, v2, v3...
+- Every change is automatically versioned - v1, v2, v3...
 - Roll back to any version instantly
 - Pin a specific version as your main (canonical) prompt
 - See exactly what changed between two versions
@@ -45,7 +50,7 @@ print(p.changes("v1", "v2"))
 
 ## CLI
 
-The `gr` command lets you use graver directly from the terminal — no Python script needed. Useful for quickly saving files, inspecting version history, or integrating into shell scripts and CI/CD pipelines.
+The `gr` command lets you use graver directly from the terminal, no Python script needed. Useful for quickly saving files, inspecting version history, or integrating into shell scripts and CI/CD pipelines.
 
 ```bash
 gr list                          # list all saved prompts
@@ -117,7 +122,7 @@ Returns the full version history of this prompt, ordered from oldest to newest.
 
 ### `set_main(version) -> None`
 
-Marks a specific version as the main (canonical) version. The main version does not change automatically when new versions are saved — only when `set_main()` is called again.
+Marks a specific version as the main (canonical) version. The main version does not change automatically when new versions are saved, only when `set_main()` is called again.
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
@@ -165,7 +170,7 @@ Returns the raw line-by-line difference between two versions as a dict. Use this
 | `v1` | `str` | Base version (e.g. `"v1"`). |
 | `v2` | `str` | Target version (e.g. `"v2"`). |
 
-**Returns:** Dict with keys `added`, `removed`, `unchanged` — each a list of strings.
+**Returns:** Dict with keys `added`, `removed`, `unchanged`, each a list of strings.
 
 ---
 
@@ -238,7 +243,7 @@ Every `Prompt` writes to a `.graver/` folder in your working directory.
 }
 ```
 
-Version numbering is automatic: each `save()` call increments the counter. Versions are never overwritten — only explicitly deleted via `delete_version()`.
+Version numbering is automatic: each `save()` call increments the counter. Versions are never overwritten, only explicitly deleted via `delete_version()`.
 
 ## License
 
