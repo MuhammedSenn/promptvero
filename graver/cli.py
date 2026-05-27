@@ -1,5 +1,3 @@
-"""Command-line interface for graver."""
-
 import argparse
 import sys
 

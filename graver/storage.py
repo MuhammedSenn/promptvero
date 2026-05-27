@@ -1,5 +1,3 @@
-"""File-system storage backend for graver."""
-
 import difflib
 import json
 from datetime import datetime
@@ -13,11 +11,7 @@ from graver.exceptions import (
 
 
 class Storage:
-    """Handles all file system operations for graver.
-
-    Args:
-        base_dir: Root directory for all prompt storage.
-    """
+    """File-system backend; stores each prompt version as a plain-text file."""
 
     def __init__(self, base_dir: str = ".graver") -> None:
         self._base = Path(base_dir).resolve()
@@ -50,18 +44,6 @@ class Storage:
         return max(int(f.stem[1:]) for f in files)
 
     def save(self, name: str, content: str) -> str:
-        """Save a new version of a prompt.
-
-        Args:
-            name: Prompt identifier.
-            content: The prompt text to persist.
-
-        Returns:
-            The version string for the saved version (e.g. "v1").
-
-        Raises:
-            StorageError: If any file write operation fails.
-        """
         prompt_dir = self._prompt_dir(name)
         prompt_dir.mkdir(parents=True, exist_ok=True)
 
@@ -95,19 +77,6 @@ class Storage:
         return version
 
     def get(self, name: str, version: str | None = None) -> str:
-        """Retrieve the content of a prompt version.
-
-        Args:
-            name: Prompt identifier.
-            version: Version string to retrieve. If None, returns the latest.
-
-        Returns:
-            The prompt text for the requested version.
-
-        Raises:
-            PromptNotFoundError: If the prompt directory does not exist.
-            VersionNotFoundError: If the requested version file does not exist.
-        """
         prompt_dir = self._prompt_dir(name)
         if not prompt_dir.exists():
             raise PromptNotFoundError(
@@ -126,17 +95,6 @@ class Storage:
         return target.read_text(encoding="utf-8")
 
     def history(self, name: str) -> list[dict]:
-        """Return the version history for a prompt.
-
-        Args:
-            name: Prompt identifier.
-
-        Returns:
-            A list of dicts with keys "version" and "timestamp".
-
-        Raises:
-            PromptNotFoundError: If the prompt directory does not exist.
-        """
         prompt_dir = self._prompt_dir(name)
         if not prompt_dir.exists():
             raise PromptNotFoundError(
@@ -150,19 +108,6 @@ class Storage:
         return json.loads(history_path.read_text(encoding="utf-8"))
 
     def diff(self, name: str, v1: str, v2: str) -> dict:
-        """Compute a line-by-line diff between two versions.
-
-        Args:
-            name: Prompt identifier.
-            v1: The base version string (e.g. "v1").
-            v2: The target version string (e.g. "v2").
-
-        Returns:
-            A dict with keys "added", "removed", and "unchanged".
-
-        Raises:
-            VersionNotFoundError: If either version does not exist.
-        """
         lines1 = self.get(name, v1).splitlines(keepends=True)
         lines2 = self.get(name, v2).splitlines(keepends=True)
 
@@ -179,16 +124,6 @@ class Storage:
         return {"added": added, "removed": removed, "unchanged": unchanged}
 
     def set_main(self, name: str, version: str) -> None:
-        """Mark a specific version as the main (canonical) version.
-
-        Args:
-            name: Prompt identifier.
-            version: Version string to mark as main (e.g. "v2").
-
-        Raises:
-            VersionNotFoundError: If the version does not exist.
-            StorageError: If the file write fails.
-        """
         if not self._version_file(name, version).exists():
             raise VersionNotFoundError(
                 f"Version '{version}' not found for prompt '{name}'."
@@ -202,19 +137,6 @@ class Storage:
             raise StorageError(f"Failed to write main for '{name}': {exc}") from exc
 
     def delete_version(self, name: str, version: str) -> None:
-        """Delete a specific version of a prompt.
-
-        Removes the version file and its entry from history. If the deleted
-        version was marked as main, the main pointer is also cleared.
-
-        Args:
-            name: Prompt identifier.
-            version: Version string to delete (e.g. "v2").
-
-        Raises:
-            VersionNotFoundError: If the version does not exist.
-            StorageError: If the file delete operation fails.
-        """
         version_path = self._version_file(name, version)
         if not version_path.exists():
             raise VersionNotFoundError(
@@ -243,18 +165,6 @@ class Storage:
             self._main_file(name).unlink(missing_ok=True)
 
     def delete_prompt(self, name: str) -> None:
-        """Delete a prompt and all its versions.
-
-        Removes the entire prompt directory including all version files,
-        history, and the main pointer.
-
-        Args:
-            name: Prompt identifier.
-
-        Raises:
-            PromptNotFoundError: If the prompt does not exist.
-            StorageError: If the directory removal fails.
-        """
         prompt_dir = self._prompt_dir(name)
         if not prompt_dir.exists():
             raise PromptNotFoundError(f"Prompt '{name}' not found.")
@@ -266,22 +176,9 @@ class Storage:
             raise StorageError(f"Failed to delete prompt '{name}': {exc}") from exc
 
     def list_prompts(self) -> list[str]:
-        """Return the names of all saved prompts.
-
-        Returns:
-            A sorted list of prompt name strings.
-        """
         return sorted(d.name for d in self._base.iterdir() if d.is_dir())
 
     def get_main(self, name: str) -> str | None:
-        """Return the version string marked as main, or None if not set.
-
-        Args:
-            name: Prompt identifier.
-
-        Returns:
-            The main version string (e.g. "v2"), or None if not set.
-        """
         main_path = self._main_file(name)
         if not main_path.exists():
             return None

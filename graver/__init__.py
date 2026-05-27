@@ -1,8 +1,5 @@
 """graver — Git-like version control for LLM prompts.
 
-Save, diff, and roll back prompt versions with a simple Python API.
-All data is stored as plain text files under a ``.graver/`` directory.
-
 Example::
 
     from graver import Prompt

@@ -1,6 +1,3 @@
-"""Custom exceptions for the graver library."""
-
-
 class GraverError(Exception):
     """Base class for all graver errors."""
 
