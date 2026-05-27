@@ -1,10 +1,10 @@
-"""Command-line interface for promptvero."""
+"""Command-line interface for graver."""
 
 import argparse
 import sys
 
-from promptvero.core import Prompt
-from promptvero.exceptions import PromptVeroError
+from graver.core import Prompt
+from graver.exceptions import GraverError
 
 
 def cmd_list(args: argparse.Namespace) -> None:
@@ -68,14 +68,14 @@ def cmd_delete_prompt(args: argparse.Namespace) -> None:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="pv",
+        prog="gr",
         description="Git-like version control for LLM prompts.",
     )
     parser.add_argument(
         "--base-dir",
-        default=".promptvero",
+        default=".graver",
         metavar="DIR",
-        help="Root directory for prompt storage (default: .promptvero)",
+        help="Root directory for prompt storage (default: .graver)",
     )
 
     sub = parser.add_subparsers(dest="command", metavar="COMMAND")
@@ -144,6 +144,6 @@ def main() -> None:
     args = parser.parse_args()
     try:
         COMMANDS[args.command](args)
-    except PromptVeroError as exc:
+    except GraverError as exc:
         print(f"Error: {exc}", file=sys.stderr)
         sys.exit(1)

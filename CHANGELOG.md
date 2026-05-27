@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.3.0] - 2026-05-26
+
+### Changed
+- Project renamed from **promptvero** to **graver** and transferred to the Practical Mind organization
+- Originally created by Muhammed Şen as [promptvero](https://github.com/MuhammedSenn/promptvero)
+- Python package renamed: `promptvero` → `graver`
+- CLI command renamed: `pv` → `gr`
+- Default storage directory renamed: `.promptvero/` → `.graver/`
+- Base exception class renamed: `PromptVeroError` → `GraverError`
+
 ## [0.2.0] - 2026-04-14
 
 ### Added

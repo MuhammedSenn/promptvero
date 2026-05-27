@@ -1,14 +1,14 @@
-# promptvero
+# Graver
 
 Git-like version control for your LLM prompts.
 
 Save prompt versions, view history, compare diffs, and roll back — all from Python, with zero external dependencies.
 
-## Why promptvero?
+## Why graver?
 
 LLM prompts change constantly. Tracking what changed, when, and which version performed better quickly becomes a mess.
 
-promptvero solves this:
+graver solves this:
 - Every change is automatically versioned — v1, v2, v3...
 - Roll back to any version instantly
 - Pin a specific version as your main (canonical) prompt
@@ -18,13 +18,13 @@ promptvero solves this:
 ## Installation
 
 ```bash
-pip install promptvero
+pip install graver
 ```
 
 ## Quick Start
 
 ```python
-from promptvero import Prompt
+from graver import Prompt
 
 p = Prompt("system")
 p.save("You are a helpful assistant")
@@ -45,34 +45,34 @@ print(p.changes("v1", "v2"))
 
 ## CLI
 
-The `pv` command lets you use promptvero directly from the terminal — no Python script needed. Useful for quickly saving files, inspecting version history, or integrating into shell scripts and CI/CD pipelines.
+The `gr` command lets you use graver directly from the terminal — no Python script needed. Useful for quickly saving files, inspecting version history, or integrating into shell scripts and CI/CD pipelines.
 
 ```bash
-pv list                          # list all saved prompts
-pv save <name> <file>            # save a file as a new version
-pv log <name>                    # show version history
-pv show <name> [version]         # show prompt content
-pv changes <name> [v1] [v2]      # show what changed between versions
-pv set-main <name> <version>     # mark a version as main
-pv get-main <name>               # print the main version content
-pv delete <name> <version>       # delete a specific version
-pv delete-prompt <name>          # delete a prompt and all its versions
+gr list                          # list all saved prompts
+gr save <name> <file>            # save a file as a new version
+gr log <name>                    # show version history
+gr show <name> [version]         # show prompt content
+gr changes <name> [v1] [v2]      # show what changed between versions
+gr set-main <name> <version>     # mark a version as main
+gr get-main <name>               # print the main version content
+gr delete <name> <version>       # delete a specific version
+gr delete-prompt <name>          # delete a prompt and all its versions
 ```
 
 Use `--base-dir` to specify a custom storage directory:
 
 ```bash
-pv --base-dir ./prompts log my-prompt
+gr --base-dir ./prompts log my-prompt
 ```
 
 ## API Reference
 
-### `Prompt(name, base_dir=".promptvero")`
+### `Prompt(name, base_dir=".graver")`
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `name` | `str` | Unique identifier for this prompt. |
-| `base_dir` | `str` | Root directory for storage. Defaults to `.promptvero`. |
+| `base_dir` | `str` | Root directory for storage. Defaults to `.graver`. |
 
 ---
 
@@ -194,7 +194,7 @@ Returns the full content of a version with a formatted header. Displays a `[main
 
 ---
 
-### `Prompt.list_all(base_dir=".promptvero") -> list[str]`
+### `Prompt.list_all(base_dir=".graver") -> list[str]`
 
 Returns the names of all saved prompts in the given base directory.
 
@@ -204,10 +204,10 @@ Returns the names of all saved prompts in the given base directory.
 
 ## How It Works
 
-Every `Prompt` writes to a `.promptvero/` folder in your working directory.
+Every `Prompt` writes to a `.graver/` folder in your working directory.
 
 ```
-.promptvero/
+.graver/
   system/
     v1.txt
     v2.txt
