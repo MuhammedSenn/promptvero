@@ -84,6 +84,9 @@ class Prompt:
         added = [line for line in result["added"] if line.strip()]
         removed = [line for line in result["removed"] if line.strip()]
 
+        if not added and not removed:
+            return f"No changes between {v1} and {v2}."
+
         lines = [
             f"\n{self.name}  |  {v1} -> {v2}",
             "=" * 55,
