@@ -28,7 +28,7 @@ system_prompt = p.get_main()
 #     model="gpt-4o",
 #     messages=[
 #         {"role": "system", "content": system_prompt},
-#         {"role": "user", "content": "Summarise the key risks of using LLMs in production."},
+#         {"role": "user", "content": "Summarise the key risks of LLMs in production."},
 #     ],
 # )
 # print(response.choices[0].message.content)

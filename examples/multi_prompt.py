@@ -8,7 +8,9 @@ system.save("You are an expert assistant. Be concise.")
 system.set_main("v2")
 
 summarizer.save("Summarise the following text in three bullet points.")
-summarizer.save("Summarise the following text in three bullet points. Focus on actionable insights.")
+summarizer.save(
+    "Summarise the following text in three bullet points. Focus on actionable insights."
+)
 summarizer.set_main("v2")
 
 # List all managed prompts
