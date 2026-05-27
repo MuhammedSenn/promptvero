@@ -1,24 +1,37 @@
 # Graver
 
 [![CI](https://github.com/PracticalMind/graver/actions/workflows/ci.yml/badge.svg)](https://github.com/PracticalMind/graver/actions/workflows/ci.yml)
-[![PyPI](https://img.shields.io/pypi/v/graver)](https://pypi.org/project/graver/)
 [![Python](https://img.shields.io/pypi/pyversions/graver)](https://pypi.org/project/graver/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Git-like version control for your LLM prompts.
+Version control for LLM prompts. Zero dependencies, works offline, embeds in any project.
 
-Save prompt versions, view history, compare diffs, and roll back, all from Python, with zero external dependencies.
+---
 
 ## Why graver?
 
-LLM prompts change constantly. Tracking what changed, when, and which version performed better quickly becomes a mess.
+### vs. cloud-based prompt management platforms
 
-graver solves this:
-- Every change is automatically versioned - v1, v2, v3...
-- Roll back to any version instantly
-- Pin a specific version as your main (canonical) prompt
-- See exactly what changed between two versions
-- Zero dependencies, zero configuration
+Most prompt management tools are cloud services: they require a signup, an API key, and your prompts leave your machine. They're built around dashboards, collaboration features, and A/B testing infrastructure, useful at scale, but heavy when you just want to track how a prompt evolves.
+
+Graver is the opposite: install it, import it, start versioning. No server, no account, no data leaving your codebase. It's fast to set up, fast to use, and stays out of your way.
+
+### vs. just using git
+
+Git tracks files. Graver tracks **prompt content** - independently of your code.
+
+- Save a new version from inside your code without creating a commit
+- Pin one version as your stable "main" while others keep evolving
+- Compare prompt changes in isolation, not buried in a diff full of source code
+- Works inside notebooks, scripts, and pipelines without touching your repo
+
+If your prompts live in `.txt` files committed alongside code, you'll feel the friction immediately: every prompt tweak becomes a commit, rollback means `git checkout`, and `git diff` mixes logic changes with wording changes.
+
+### vs. building it yourself
+
+Prompt versioning looks simple until you handle edge cases: version numbering after deletions, pinning a canonical version independently of the latest, history that survives partial deletions. Graver handles all of this. One `pip install`, zero boilerplate.
+
+---
 
 ## Installation
 
@@ -32,43 +45,60 @@ pip install graver
 from graver import Prompt
 
 p = Prompt("system")
-p.save("You are a helpful assistant")
+
+p.save("You are a helpful assistant.")
 p.save("You are an expert analyst. Be concise and data-driven.")
 
-for entry in p.log():
-    print(entry["version"], entry["timestamp"], entry["is_main"])
+# See what changed
+print(p.changes())
 
-# Pin the first version as your stable main prompt
+# Pin a stable version
 p.set_main("v1")
 
-# Always get the pinned version, regardless of how many new versions exist
+# Always retrieve the pinned version, regardless of newer saves
 content = p.get_main()
-
-# See what changed between two versions
-print(p.changes("v1", "v2"))
 ```
+
+---
 
 ## CLI
 
-The `gr` command lets you use graver directly from the terminal, no Python script needed. Useful for quickly saving files, inspecting version history, or integrating into shell scripts and CI/CD pipelines.
-
 ```bash
+gr save system prompt.txt        # save a file as a new version
+gr log system                    # show version history
+gr show system v2                # show a specific version
+gr changes system                # diff the last two versions
+gr set-main system v1            # pin a version as main
+gr get-main system               # print the pinned version
 gr list                          # list all saved prompts
-gr save <name> <file>            # save a file as a new version
-gr log <name>                    # show version history
-gr show <name> [version]         # show prompt content
-gr changes <name> [v1] [v2]      # show what changed between versions
-gr set-main <name> <version>     # mark a version as main
-gr get-main <name>               # print the main version content
-gr delete <name> <version>       # delete a specific version
-gr delete-prompt <name>          # delete a prompt and all its versions
+gr delete system v2              # delete a version
+gr delete-prompt system          # delete a prompt entirely
 ```
 
-Use `--base-dir` to specify a custom storage directory:
+Use `--base-dir` to point to a custom storage directory:
 
 ```bash
-gr --base-dir ./prompts log my-prompt
+gr --base-dir ./prompts log system
 ```
+
+---
+
+## How It Works
+
+Every `Prompt` writes to a `.graver/` folder in your working directory. No database, no server, no configuration.
+
+```
+.graver/
+  system/
+    v1.txt
+    v2.txt
+    history.json   ← version index with timestamps
+    main.json      ← pointer to the pinned version
+```
+
+Versions are never overwritten, only explicitly deleted. Version numbers never collide even if you delete intermediate versions.
+
+---
 
 ## API Reference
 
@@ -77,173 +107,41 @@ gr --base-dir ./prompts log my-prompt
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `name` | `str` | Unique identifier for this prompt. |
-| `base_dir` | `str` | Root directory for storage. Defaults to `.graver`. |
+| `base_dir` | `str` | Storage root. Defaults to `.graver` in the working directory. |
+
+### Methods
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `save(content)` | `str` | Save a new version. Returns the version string (e.g. `"v3"`). |
+| `save_from_file(filepath)` | `str` | Read from a file and save as a new version. |
+| `get(version=None)` | `str` | Get a version's content. Defaults to latest. |
+| `log()` | `list[dict]` | Full version history with `version`, `timestamp`, `is_main`. |
+| `set_main(version)` | `None` | Pin a version as the canonical main. |
+| `get_main()` | `str` | Get the content of the pinned main version. |
+| `changes(v1=None, v2=None)` | `str` | Formatted diff. Defaults to last two versions. |
+| `diff(v1, v2)` | `dict` | Raw diff with `added`, `removed`, `unchanged` line lists. |
+| `show(version=None)` | `str` | Content with formatted header. Defaults to latest. |
+| `delete_version(version)` | `None` | Delete a specific version. Clears main pointer if it was main. |
+| `delete_prompt()` | `None` | Delete this prompt and all its versions. |
+| `Prompt.list_all(base_dir)` | `list[str]` | List all prompt names in the given directory. |
+
+### Exceptions
+
+| Exception | Raised when |
+|-----------|-------------|
+| `GraverError` | Base class for all graver errors. |
+| `PromptNotFoundError` | Prompt name or file does not exist. |
+| `VersionNotFoundError` | Version string does not exist. |
+| `StorageError` | A file system operation fails. |
 
 ---
 
-### `save(content) -> str`
+## Examples
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `content` | `str` | The prompt text to persist. |
-
-**Returns:** Version string (e.g. `"v1"`).
+See [`examples/`](examples/) for usage with OpenAI, Anthropic, and LangChain.
 
 ---
-
-### `save_from_file(filepath) -> str`
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `filepath` | `str` | Path to the file to read. Any plain text file is accepted. |
-
-**Returns:** Version string.  
-**Raises:** `PromptNotFoundError` if the file does not exist.
-
----
-
-### `get(version=None) -> str`
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `version` | `str \| None` | Version to retrieve (e.g. `"v2"`). If `None`, returns the latest. |
-
-**Returns:** Prompt text.
-
----
-
-### `log() -> list[dict]`
-
-Returns the full version history of this prompt, ordered from oldest to newest.
-
-**Returns:** List of dicts with keys `version` (str), `timestamp` (str), and `is_main` (bool).
-
----
-
-### `set_main(version) -> None`
-
-Marks a specific version as the main (canonical) version. The main version does not change automatically when new versions are saved, only when `set_main()` is called again.
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `version` | `str` | Version to mark as main (e.g. `"v2"`). |
-
-**Raises:** `VersionNotFoundError` if the version does not exist.
-
----
-
-### `get_main() -> str`
-
-Returns the full content of the version marked as main. Use this to always retrieve your stable, pinned prompt regardless of how many new versions have been saved since.
-
-**Returns:** Prompt text of the main version.  
-**Raises:** `PromptNotFoundError` if no main version has been set.
-
----
-
-### `delete_prompt() -> None`
-
-Permanently deletes this prompt and all its versions. Removes all version files, history, and the main pointer.
-
-**Raises:** `PromptNotFoundError` if the prompt does not exist.
-
----
-
-### `delete_version(version) -> None`
-
-Permanently deletes a specific version. Removes the version file and its history entry. If the deleted version was marked as main, the main pointer is also cleared.
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `version` | `str` | Version string to delete (e.g. `"v2"`). |
-
-**Raises:** `VersionNotFoundError` if the version does not exist.
-
----
-
-### `diff(v1, v2) -> dict`
-
-Returns the raw line-by-line difference between two versions as a dict. Use this when you want to process the result programmatically. For a human-readable report, use `changes()` instead.
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `v1` | `str` | Base version (e.g. `"v1"`). |
-| `v2` | `str` | Target version (e.g. `"v2"`). |
-
-**Returns:** Dict with keys `added`, `removed`, `unchanged`, each a list of strings.
-
----
-
-### `changes(v1=None, v2=None) -> str`
-
-Returns a human-readable change report between two versions, showing which lines were added and which were removed. If no arguments are given, compares the last two saved versions. For raw diff data, use `diff()` instead.
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `v1` | `str \| None` | Base version. If `None`, uses second-to-last. |
-| `v2` | `str \| None` | Target version. If `None`, uses latest. |
-
-**Returns:** Formatted string showing added and removed lines.
-
----
-
-### `show(version=None) -> str`
-
-Returns the full content of a version with a formatted header. Displays a `[main]` tag if the version is the pinned main.
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `version` | `str \| None` | Version to display. If `None`, shows latest. |
-
-**Returns:** Formatted string with header and prompt content.
-
----
-
-### `Prompt.list_all(base_dir=".graver") -> list[str]`
-
-Returns the names of all saved prompts in the given base directory.
-
-**Returns:** Sorted list of prompt name strings.
-
----
-
-## How It Works
-
-Every `Prompt` writes to a `.graver/` folder in your working directory.
-
-```
-.graver/
-  system/
-    v1.txt
-    v2.txt
-    history.json
-    main.json
-```
-
-**history.json format:**
-
-```json
-[
-  {
-    "version": "v1",
-    "timestamp": "2024-01-01T10:00:00"
-  },
-  {
-    "version": "v2",
-    "timestamp": "2024-01-01T11:00:00"
-  }
-]
-```
-
-**main.json format:**
-
-```json
-{
-  "version": "v1"
-}
-```
-
-Version numbering is automatic: each `save()` call increments the counter. Versions are never overwritten, only explicitly deleted via `delete_version()`.
 
 ## License
 
