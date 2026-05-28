@@ -205,3 +205,12 @@ def test_list_all_returns_sorted(tmp_path):
     Prompt("alpha", base_dir=str(tmp_path)).save("content")
     names = Prompt.list_all(base_dir=str(tmp_path))
     assert names == sorted(names)
+
+
+def test_changes_identical_versions_returns_no_changes_message(tmp_path):
+    p = Prompt("system", base_dir=str(tmp_path))
+    same_content = "You are a helpful assistant."
+    p.save(same_content)
+    p.save(same_content)
+    result = p.changes()
+    assert result == "No changes between v1 and v2."
