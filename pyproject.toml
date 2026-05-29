@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "graver"
 version = "0.1.0"
-description = "Git-like version control for LLM prompts"
+description = "Version control for LLM prompts. Zero dependencies, works offline, embeds in any project."
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.10"
