@@ -1,6 +1,7 @@
 # Graver
 
 [![CI](https://github.com/PracticalMind/graver/actions/workflows/ci.yml/badge.svg)](https://github.com/PracticalMind/graver/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/graver)](https://pypi.org/project/graver/)
 [![Python](https://img.shields.io/pypi/pyversions/graver)](https://pypi.org/project/graver/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
