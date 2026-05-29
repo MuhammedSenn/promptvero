@@ -143,6 +143,14 @@ See [`examples/`](examples/) for usage with OpenAI, Anthropic, and LangChain.
 
 ---
 
+## Contributing
+
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions, code standards, and the PR process.
+
+To report a bug or request a feature, open an [issue](https://github.com/PracticalMind/graver/issues).
+
+---
+
 ## License
 
-MIT
+Released under the [MIT License](LICENSE).

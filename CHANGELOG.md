@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.3.0] - 2026-05-26
+## [0.1.0] - 2026-05-26
 
 ### Changed
 - Project renamed from **promptvero** to **graver** and transferred to the Practical Mind organization

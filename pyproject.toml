@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "graver"
-version = "0.3.0"
+version = "0.1.0"
 description = "Git-like version control for LLM prompts"
 readme = "README.md"
 license = {file = "LICENSE"}
