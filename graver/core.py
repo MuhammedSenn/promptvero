@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Any
 
 from graver.exceptions import PromptNotFoundError
 from graver.storage import Storage
@@ -10,6 +11,9 @@ class Prompt:
     def __init__(self, name: str, base_dir: str = ".graver") -> None:
         self.name = name
         self._storage = Storage(base_dir=base_dir)
+
+    def __repr__(self) -> str:
+        return f"Prompt({self.name!r}, base_dir={str(self._storage._base)!r})"
 
     @staticmethod
     def list_all(base_dir: str = ".graver") -> list[str]:
@@ -34,7 +38,7 @@ class Prompt:
         """Return the prompt text for the given version, or the latest if None."""
         return self._storage.get(self.name, version)
 
-    def log(self) -> list[dict]:
+    def log(self) -> list[dict[str, Any]]:
         """Return the full version history, oldest to newest, with is_main flag."""
         main = self._storage.get_main(self.name)
         history = self._storage.history(self.name)
@@ -63,7 +67,7 @@ class Prompt:
         """Delete a specific version; clears the main pointer if it was main."""
         self._storage.delete_version(self.name, version)
 
-    def diff(self, v1: str, v2: str) -> dict:
+    def diff(self, v1: str, v2: str) -> dict[str, list[str]]:
         """Return raw line-by-line diff between two versions."""
         return self._storage.diff(self.name, v1, v2)
 
@@ -73,10 +77,9 @@ class Prompt:
         if len(history) < 2:
             return "Need at least 2 versions to compare."
 
-        if v1 is None and v2 is None:
+        if v1 is None:
             v1 = history[-2]["version"]
-            v2 = history[-1]["version"]
-        elif v2 is None:
+        if v2 is None:
             v2 = history[-1]["version"]
 
         result = self._storage.diff(self.name, v1, v2)

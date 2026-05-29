@@ -2,6 +2,7 @@ import difflib
 import json
 from datetime import datetime
 from pathlib import Path
+from typing import Any
 
 from graver.exceptions import (
     PromptNotFoundError,
@@ -57,7 +58,7 @@ class Storage:
 
         history_path = self._history_file(name)
         try:
-            history: list[dict] = (
+            history: list[dict[str, Any]] = (
                 json.loads(history_path.read_text(encoding="utf-8"))
                 if history_path.exists()
                 else []
@@ -94,7 +95,7 @@ class Storage:
 
         return target.read_text(encoding="utf-8")
 
-    def history(self, name: str) -> list[dict]:
+    def history(self, name: str) -> list[dict[str, Any]]:
         prompt_dir = self._prompt_dir(name)
         if not prompt_dir.exists():
             raise PromptNotFoundError(
@@ -105,9 +106,12 @@ class Storage:
         if not history_path.exists():
             return []
 
-        return json.loads(history_path.read_text(encoding="utf-8"))
+        result: list[dict[str, Any]] = json.loads(
+            history_path.read_text(encoding="utf-8")
+        )
+        return result
 
-    def diff(self, name: str, v1: str, v2: str) -> dict:
+    def diff(self, name: str, v1: str, v2: str) -> dict[str, list[str]]:
         lines1 = self.get(name, v1).splitlines(keepends=True)
         lines2 = self.get(name, v2).splitlines(keepends=True)
 
@@ -151,7 +155,9 @@ class Storage:
         history_path = self._history_file(name)
         if history_path.exists():
             try:
-                history = json.loads(history_path.read_text(encoding="utf-8"))
+                history: list[dict[str, Any]] = json.loads(
+                    history_path.read_text(encoding="utf-8")
+                )
                 history = [e for e in history if e["version"] != version]
                 history_path.write_text(
                     json.dumps(history, indent=2, ensure_ascii=False), encoding="utf-8"
@@ -182,5 +188,6 @@ class Storage:
         main_path = self._main_file(name)
         if not main_path.exists():
             return None
-        data = json.loads(main_path.read_text(encoding="utf-8"))
-        return data.get("version")
+        data: dict[str, Any] = json.loads(main_path.read_text(encoding="utf-8"))
+        version: str | None = data.get("version")
+        return version
