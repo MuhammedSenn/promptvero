@@ -87,13 +87,24 @@ class Prompt:
         if not added and not removed:
             return f"No changes between {v1} and {v2}."
 
+        sep = "-" * 60
+
+        def _plural(n: int) -> str:
+            return f"{n} line" if n == 1 else f"{n} lines"
+
+        summary_parts = []
+        if removed:
+            summary_parts.append(f"{_plural(len(removed))} removed")
+        if added:
+            summary_parts.append(f"{_plural(len(added))} added")
+
         lines = [
-            f"\n{self.name}  |  {v1} -> {v2}",
-            "=" * 55,
-            f"\n+ ADDED ({len(added)} lines)",
-            *[f"    + {line}" for line in added],
-            f"\n- REMOVED ({len(removed)} lines)",
-            *[f"    - {line}" for line in removed],
+            f"{self.name}  {v1} -> {v2}",
+            sep,
+            *[f"- {line}" for line in removed],
+            *[f"+ {line}" for line in added],
+            sep,
+            "  |  ".join(summary_parts),
         ]
         return "\n".join(lines)
 
@@ -108,11 +119,7 @@ class Prompt:
         main_version = self._storage.get_main(self.name)
         main_tag = "  [main]" if resolved == main_version else ""
 
-        lines = [
-            f"\n{'=' * 60}",
-            f"  {self.name}  |  {resolved}{main_tag}  |  {timestamp}",
-            "=" * 60,
-            content,
-            "=" * 60,
-        ]
-        return "\n".join(lines)
+        sep = "-" * 60
+        header = f"{self.name}  {resolved}{main_tag}  {timestamp}"
+
+        return "\n".join([header, sep, content])
